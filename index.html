@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合同实施情况查询系统 - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a6cf7, #5c86ff);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .demo-badge {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            backdrop-filter: blur(4px);
+        }
+
+        .query-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+        }
+
+        .search-btn {
+            padding: 12px 30px;
+            background-color: #4a6cf7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            height: 48px;
+        }
+
+        .search-btn:hover {
+            background-color: #3a5be7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+
+        .result-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .result-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-count {
+            font-size: 14px;
+            font-weight: 400;
+            color: #888;
+            margin-left: 8px;
+        }
+
+        .result-card {
+            padding: 20px;
+            border: 1px solid #e8ecf1;
+            border-radius: 8px;
+            background-color: #fafbfc;
+            margin-bottom: 15px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-card:hover {
+            border-color: #4a6cf7;
+            box-shadow: 0 2px 8px rgba(74, 108, 247, 0.1);
+        }
+
+        .result-card h3 {
+            margin-bottom: 12px;
+            color: #4a6cf7;
+            font-size: 1.1em;
+            font-weight: 600;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 8px 20px;
+        }
+
+        .result-item {
+            display: flex;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #666;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .result-value {
+            color: #333;
+            word-break: break-word;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background-color: #fef2f2;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .hint-section {
+            background: linear-gradient(135deg, #eef2ff, #f0f7ff);
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #d4e2ff;
+        }
+
+        .hint-section h3 {
+            color: #4a6cf7;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .hint-section ul {
+            padding-left: 18px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .hint-section li {
+            margin-bottom: 4px;
+        }
+
+        .hint-section code {
+            background: rgba(74, 108, 247, 0.1);
+            padding: 1px 6px;
+            border-radius: 3px;
+            color: #4a6cf7;
+            font-family: monospace;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        footer a {
+            color: #4a6cf7;
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            header { padding: 20px; }
+            h1 { font-size: 1.8em; }
+            .demo-badge { top: 10px; right: 12px; font-size: 11px; }
+            .query-section, .result-section { padding: 20px; }
+            .form-row { flex-direction: column; }
+            .result-grid { grid-template-columns: 1fr; }
+            .result-item { flex-direction: column; }
+            .result-label { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="demo-badge">Demo - 脱敏数据</span>
+            <h1>合同实施情况查询系统</h1>
+            <p class="subtitle">支持按合同号、学员姓名、销售姓名多维度查询</p>
+        </header>
+
+        <div class="hint-section">
+            <h3>Demo 体验提示</h3>
+            <ul>
+                <li>按合同号查询：试试 <code>AH25-S02-0018</code>、<code>AH25-T01-0006</code></li>
+                <li>按学员姓名查询：试试 <code>张明</code>、<code>李婷</code></li>
+                <li>按销售姓名查询：试试 <code>陈磊</code>、<code>周芳</code></li>
+                <li>所有数据均为虚构，仅用于展示系统功能</li>
+            </ul>
+        </div>
+
+        <section class="query-section">
+            <form class="search-form" onsubmit="handleSearch(event)">
+                <div class="form-row">
+                    <div class="form-group" style="max-width: 200px;">
+                        <label for="searchType">查询类型</label>
+                        <select id="searchType" onchange="toggleSearchInput()">
+                            <option value="contract">合同号</option>
+                            <option value="student">学员姓名</option>
+                            <option value="sales">销售姓名</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="contractInputGroup">
+                        <label for="contractNumber">合同号</label>
+                        <input type="text" id="contractNumber" placeholder="请输入合同号" required>
+                    </div>
+                    <div class="form-group" id="studentInputGroup" style="display: none;">
+                        <label for="studentName">学员姓名</label>
+                        <input type="text" id="studentName" placeholder="请输入学员姓名">
+                    </div>
+                    <div class="form-group" id="salesInputGroup" style="display: none;">
+                        <label for="salesName">销售姓名</label>
+                        <input type="text" id="salesName" placeholder="请输入销售姓名">
+                    </div>
+                    <button type="submit" class="search-btn">查 询</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="result-section">
+            <h2>查询结果 <span class="result-count" id="resultCount"></span></h2>
+            <div id="resultContainer">
+                <div style="text-align: center; color: #aaa; padding: 30px;">请输入查询条件，点击查询</div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Contract Query System Demo &copy; 2026 &nbsp;|&nbsp; 所有数据均为虚构，仅用于功能演示</p>
+        </footer>
+    </div>
+
+    <script>
+        // ---- 脱敏模拟数据 ----
+        const csvData = [
+            ["序号","销售","下单方式","合同号","","原始数据","培训数量","下单培训单价","培训总额","实施情况","备注"],
+            ["1","陈磊","标准下单","AH25-S02-0018","","CISP*3","3","12800","38400","张明 CISP 3月北京班，已开课；赵阳 CISP 4月上海班待确认","客户要求分两批培训",""],
+            ["2","陈磊","标准下单","AH25-S02-0018","","CISP*2","2","12800","25600","李婷 CISP 5月广州班，已完成缴费","同合同续购",""],
+            ["3","周芳","标准下单","AH25-T01-0006","","CISP-PTE*2","2","15800","31600","王建国 CISP-PTE 4月线上班；刘洋 CISP-PTE 5月线下班",""],
+            ["4","周芳","标准下单","AH25-T01-0012","","CISAW*5","5","9800","49000","孙伟 CISAW 3月已完成；钱磊 CISAW 4月进行中；吴敏 CISAW 5月待开班","剩余2人待排期",""],
+            ["5","张丽华","渠道下单","AH25-Q03-0025","","CISP*4","4","12800","51200","郑浩 CISP 4月班；冯雪 CISP 5月班；韩冰 CISP 6月班","另一人待确认时间",""],
+            ["6","张丽华","渠道下单","AH25-Q03-0025","","CCRC-CSERE*2","2","8500","17000","周静 CSERE 5月线上班","新业务线培训",""],
+            ["7","王强","标准下单","AH25-S04-0033","","CISP*8","8","12800","102400","吴刚 CISP 3月班已完成；郑明 CISP 4月班进行中","大型政企客户，分3批",""],
+            ["8","王强","标准下单","AH25-S04-0033","","CISAW*3","3","9800","29400","黄丽 CISAW 5月班；杨帆 CISAW 6月班；徐磊 CISAW 7月班",""],
+            ["9","林小燕","标准下单","AH25-S05-0041","","CISP-PTE*1","1","15800","15800","张明 CISP-PTE 6月线下班","升级培训",""],
+            ["10","林小燕","渠道下单","AH25-Q02-0008","","CISP*2 + CISP-PTE*1","3","—","41400","马丽 CISP 4月班；陈浩 CISP 5月班；刘佳 CISP-PTE 6月班","组合套餐",""],
+            ["11","赵鹏","标准下单","AH25-S06-0015","","CISP*6","6","12800","76800","李婷 CISP 4月已完成；孙伟 CISP 5月进行中；张明 CISP 5月进行中","金融行业客户",""],
+            ["12","赵鹏","标准下单","AH25-S06-0022","","CISAW*4","4","9800","39200","周静 CISAW 6月班；吴敏 CISAW 6月班","另2人待选班次",""],
+            ["13","周芳","标准下单","AH25-S07-0030","","CISP*3","3","12800","38400","韩冰 CISP 7月班；冯雪 CISP 7月班；杨帆 CISP 8月班","暑期集中培训",""],
+            ["14","陈磊","渠道下单","AH25-Q04-0019","","CISP-PTE*2","2","15800","31600","刘洋 CISP-PTE 6月班；王建国 CISP-PTE 7月班",""],
+            ["15","张丽华","标准下单","AH25-S08-0005","","CISP*10","10","12800","128000","批量培训，分4个班次，3月-8月滚动开班","年度框架协议",""],
+            ["16","林小燕","标准下单","AH25-S09-0028","","CCRC-CSERE*3","3","8500","25500","马丽 CSERE 6月班；黄丽 CSERE 7月班","1人待确认",""],
+            ["17","王强","渠道下单","AH25-Q05-0036","","CISP*2","2","12800","25600","李婷 CISP 8月班；张明 CISP 8月班","返购客户",""],
+            ["18","赵鹏","标准下单","AH25-S10-0011","","CISP-PTE*1 + CISAW*2","3","—","35400","孙伟 CISAW 8月班；钱磊 CISAW 8月班",""],
+            ["19","周芳","标准下单","AH25-S11-0044","","CISP*5","5","12800","64000","赵阳 CISP 9月班；郑浩 CISP 9月班","能源行业客户",""],
+            ["20","陈磊","标准下单","AH25-S12-0002","","CISAW*4 + CISP*2","6","—","65000","刘佳 CISAW 9月班；徐磊 CISAW 9月班；韩冰 CISP 10月班","年底冲刺订单",""]
+        ];
+
+        // ---- 切换查询输入框 ----
+        function toggleSearchInput() {
+            const searchType = document.getElementById('searchType').value;
+            const groups = {
+                contract: document.getElementById('contractInputGroup'),
+                student: document.getElementById('studentInputGroup'),
+                sales: document.getElementById('salesInputGroup')
+            };
+            const inputs = {
+                contract: document.getElementById('contractNumber'),
+                student: document.getElementById('studentName'),
+                sales: document.getElementById('salesName')
+            };
+
+            Object.keys(groups).forEach(key => {
+                groups[key].style.display = key === searchType ? 'block' : 'none';
+                if (key === searchType) {
+                    inputs[key].setAttribute('required', 'required');
+                } else {
+                    inputs[key].removeAttribute('required');
+                }
+            });
+        }
+
+        // ---- 处理搜索 ----
+        function handleSearch(event) {
+            event.preventDefault();
+            const searchType = document.getElementById('searchType').value;
+            const resultContainer = document.getElementById('resultContainer');
+
+            if (searchType === 'contract') {
+                const val = document.getElementById('contractNumber').value.trim();
+                if (!val) { resultContainer.innerHTML = errorMessage('请输入合同号'); return; }
+                searchByContract(val, resultContainer);
+            } else if (searchType === 'student') {
+                const val = document.getElementById('studentName').value.trim();
+                if (!val) { resultContainer.innerHTML = errorMessage('请输入学员姓名'); return; }
+                searchByStudent(val, resultContainer);
+            } else {
+                const val = document.getElementById('salesName').value.trim();
+                if (!val) { resultContainer.innerHTML = errorMessage('请输入销售姓名'); return; }
+                searchBySales(val, resultContainer);
+            }
+        }
+
+        function errorMessage(msg) {
+            return '<div class="error-message">' + msg + '</div>';
+        }
+
+        // ---- 按合同号搜索 ----
+        function searchByContract(contractNumber, container) {
+            const results = [];
+            let found = false;
+
+            for (let i = 1; i < csvData.length; i++) {
+                const row = csvData[i];
+                if (row[3] && row[3].trim() === contractNumber) {
+                    results.push(row);
+                    found = true;
+                } else if (found && (!row[3] || row[3].trim() === '')) {
+                    results.push(row);
+                } else if (found && row[3] && row[3].trim() !== '') {
+                    break;
+                }
+            }
+
+            if (results.length > 0) {
+                renderResults(results, container, '合同');
+            } else {
+                container.innerHTML = errorMessage('未找到该合同号的信息');
+                document.getElementById('resultCount').textContent = '';
+            }
+        }
+
+        // ---- 按学员姓名搜索 ----
+        function searchByStudent(name, container) {
+            const results = [];
+            for (let i = 1; i < csvData.length; i++) {
+                const row = csvData[i];
+                if ((row[9] || '').includes(name)) {
+                    results.push(row);
+                }
+            }
+            if (results.length > 0) {
+                renderResults(results, container, '学员匹配');
+            } else {
+                container.innerHTML = errorMessage('未找到该学员姓名的信息');
+                document.getElementById('resultCount').textContent = '';
+            }
+        }
+
+        // ---- 按销售姓名搜索 ----
+        function searchBySales(name, container) {
+            const results = [];
+            for (let i = 1; i < csvData.length; i++) {
+                const row = csvData[i];
+                if ((row[1] || '').includes(name)) {
+                    results.push(row);
+                }
+            }
+            if (results.length > 0) {
+                renderResults(results, container, '销售匹配');
+            } else {
+                container.innerHTML = errorMessage('未找到该销售姓名的信息');
+                document.getElementById('resultCount').textContent = '';
+            }
+        }
+
+        // ---- 渲染结果 ----
+        function renderResults(results, container, type) {
+            document.getElementById('resultCount').textContent = '（共 ' + results.length + ' 条' + type + '记录）';
+            let html = '';
+            results.forEach((row, index) => {
+                html += '<div class="result-card">' +
+                    '<h3>' + (type === '合同' ? '合同明细 ' : '查询结果 ') + (index + 1) + '</h3>' +
+                    '<div class="result-grid">' +
+                    '<div class="result-item"><span class="result-label">合同号：</span><span class="result-value">' + (row[3] || '-') + '</span></div>' +
+                    '<div class="result-item"><span class="result-label">销售：</span><span class="result-value">' + (row[1] || '-') + '</span></div>' +
+                    '<div class="result-item"><span class="result-label">培训内容：</span><span class="result-value">' + (row[5] || '-') + '</span></div>' +
+                    '<div class="result-item"><span class="result-label">培训数量：</span><span class="result-value">' + (row[6] || '-') + '</span></div>' +
+                    '<div class="result-item"><span class="result-label">培训总额：</span><span class="result-value">' + (row[8] || '-') + ' 元</span></div>' +
+                    '<div class="result-item"><span class="result-label">实施情况：</span><span class="result-value">' + (row[9] || '-') + '</span></div>' +
+                    (row[10] ? '<div class="result-item"><span class="result-label">备注：</span><span class="result-value">' + row[10] + '</span></div>' : '') +
+                    '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
